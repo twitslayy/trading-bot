@@ -8,8 +8,17 @@ body { background: var(--bg); color: var(--txt);
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
   max-width: 640px; margin: 0 auto; padding: 12px; }
 header { display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 4px 14px; }
+  padding: 8px 4px 10px; }
 .brand { font-weight: 700; font-size: 18px; }
+.controls { display: flex; gap: 8px; }
+.btn { font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--card); color: var(--txt);
+  cursor: pointer; }
+.btn:active { transform: scale(.96); }
+.btn.go { border-color: var(--green); color: var(--green); }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn:disabled { opacity: .45; cursor: default; }
+.statusrow { display: flex; align-items: center; gap: 10px; padding: 0 4px 14px; }
 .pill { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px;
   background: var(--line); color: var(--dim); letter-spacing: .5px; }
 .pill.live { background: rgba(38,166,154,.15); color: var(--green); }

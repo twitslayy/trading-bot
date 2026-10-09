@@ -80,15 +80,14 @@ against the "buy & hold" line it prints.
 A live dashboard shows equity, prices, positions, trades and the bot log —
 built as a plain static site in `dashboard/` (no server needed):
 
-- The bot writes `dashboard/data/state.json` every ~minute (`dashboard_state.py`).
+- The bot writes `dashboard/data/state.json` every ~20s (`dashboard_state.py`).
 - `dashboard/app.js` fetches that file from GitHub raw and refreshes every 30s.
-- Hosted on Vercel (free): import the repo, set **Root Directory** to
-  `dashboard`, deploy. No build command needed.
-- Live data flows: an auto-publish job commits `dashboard/data/state.json`
-  to GitHub every few minutes — the dashboard picks it up with no redeploy.
-
-Open `dashboard/index.html` locally to preview it (shows placeholder data
-until the bot publishes).
+- Hosted on Vercel (free): static files + a tiny `api/control.js` function.
+- **Controls on the page:** ↻ Refresh (fetch now), ▶ Start and ⏸ Stop —
+  they write `dashboard/data/command.json` via the API, which the bot polls
+  about every minute. Stop pauses trading (no orders); the bot keeps
+  publishing state. Needs `GITHUB_TOKEN` (repo Contents: read+write) and
+  `DASHBOARD_KEY` env vars on Vercel.
 
 ## Keep it running 24/7
 

@@ -28,7 +28,7 @@ risk:
 grid:
   symbol: BTC/USD
   levels: 6               # buy levels below the anchor price
-  spacing_pct: 0.5        # distance between grid lines
+  spacing_pct: 0.5        # distance between grid lines (must stay well above 0.2% round-trip fees)
   order_usd: 25.0         # USD spent per filled buy level
 
 momentum:

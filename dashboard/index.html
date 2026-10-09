@@ -9,8 +9,16 @@
 <body>
 <header>
   <div class="brand">🤖 Trading Bot</div>
-  <div id="status-pill" class="pill unknown">CONNECTING…</div>
+  <div class="controls">
+    <button id="btn-refresh" class="btn" title="Fetch latest data now">↻ Refresh</button>
+    <button id="btn-start" class="btn go" title="Resume trading">▶ Start</button>
+    <button id="btn-stop" class="btn danger" title="Pause trading">⏸ Stop</button>
+  </div>
 </header>
+<div class="statusrow">
+  <div id="status-pill" class="pill unknown">CONNECTING…</div>
+  <div id="ctrl-msg" class="tiny"></div>
+</div>
 
 <main>
   <section class="card hero">

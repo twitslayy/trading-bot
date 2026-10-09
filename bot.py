@@ -13,6 +13,7 @@ import signal
 import sys
 import time
 
+import requests
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -21,6 +22,20 @@ from pricefeed import PriceFeed
 from broker import PaperBroker
 from risk import RiskManager
 from dashboard_state import build_state
+
+COMMAND_URL = ("https://raw.githubusercontent.com/twitslayy/trading-bot"
+               "/main/dashboard/data/command.json")
+
+
+def fetch_command():
+    """Read start/stop command set from the web dashboard (via Vercel API)."""
+    try:
+        r = requests.get(COMMAND_URL, timeout=10)
+        if r.status_code == 200:
+            return r.json().get("action")
+    except Exception:
+        pass
+    return None
 from strategies.grid import GridStrategy
 from strategies.momentum import MomentumStrategy
 from strategies.scanner import DivergenceScanner
@@ -80,6 +95,11 @@ def main():
     log(f"=== bot starting: mode={mode} strategy={strat_name} symbols={symbols} ===")
     log(f"starting equity: ${broker.equity_usd():.2f}")
 
+    # web-dashboard remote control: start paused if the dashboard says stop
+    paused = (fetch_command() == "stop")
+    if paused:
+        log("dashboard command: starting PAUSED")
+
     loop_n = 0
     while not stop:
         if os.path.exists("KILL"):
@@ -95,22 +115,33 @@ def main():
                 time.sleep(poll)
                 continue
 
-            if strat_name == "grid":
+            if paused:
+                pass  # remote-paused from dashboard: monitor only, no orders
+            elif strat_name == "grid":
                 strat.on_tick(prices[strat.symbol], log)
             else:
                 strat.on_tick(prices, log)
             scanner.maybe_scan(log)
 
-            # publish web-dashboard state about once a minute
+            # publish web-dashboard state every loop (~20s)
             loop_n += 1
-            if loop_n % 3 == 0:
-                try:
-                    eq = broker.equity_usd()
-                    base = risk.day_start_equity or eq
-                    day_pnl = (eq - base) / base * 100.0 if base else 0.0
-                    build_state(cfg, broker, strat, strat_name, prices, day_pnl)
-                except Exception as e:
-                    log(f"dashboard publish failed: {e}")
+            try:
+                # remote start/stop from the dashboard (checked ~every minute)
+                if loop_n % 3 == 0:
+                    cmd = fetch_command()
+                    if cmd == "stop" and not paused:
+                        paused = True
+                        log("dashboard command: PAUSED trading")
+                    elif cmd == "start" and paused:
+                        paused = False
+                        log("dashboard command: RESUMED trading")
+                eq = broker.equity_usd()
+                base = risk.day_start_equity or eq
+                day_pnl = (eq - base) / base * 100.0 if base else 0.0
+                build_state(cfg, broker, strat, strat_name, prices, day_pnl,
+                            paused=paused)
+            except Exception as e:
+                log(f"dashboard publish failed: {e}")
         except Exception as e:
             log(f"loop error (will retry): {e}")
         time.sleep(poll)

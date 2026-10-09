@@ -35,7 +35,8 @@ def _recent_trades(n=20):
     return out[-n:]
 
 
-def build_state(cfg, broker, strategy, strat_name, prices, day_pnl_pct=0.0):
+def build_state(cfg, broker, strategy, strat_name, prices, day_pnl_pct=0.0,
+                paused=False):
     positions = []
     if strat_name == "grid":
         for ps in getattr(strategy, "pending_sells", []):
@@ -59,6 +60,7 @@ def build_state(cfg, broker, strategy, strat_name, prices, day_pnl_pct=0.0):
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "mode": cfg.get("mode", "paper"),
         "strategy": strat_name,
+        "status": "PAUSED" if paused else "LIVE",
         "symbols": sorted(prices.keys()),
         "prices": {s: round(p, 2) for s, p in prices.items()},
         "equity_usd": round(broker.equity_usd(), 2),

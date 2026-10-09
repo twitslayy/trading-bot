@@ -5,8 +5,53 @@ const OWNER = "twitslayy";
 const REPO = "trading-bot";
 const BRANCH = "main";
 const DATA_URL = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/dashboard/data/state.json`;
+/* Filled in at deploy time — authorises the Start/Stop buttons. */
+const CONTROL_KEY = "__CONTROL_KEY__";
 
 const $ = (id) => document.getElementById(id);
+
+function ctrlMsg(t, ok = true) {
+  const el = $("ctrl-msg");
+  el.textContent = t;
+  el.style.color = ok ? "var(--dim)" : "var(--red)";
+  if (t) setTimeout(() => { el.textContent = ""; }, 4000);
+}
+
+async function sendCommand(action) {
+  const btn = action === "start" ? $("btn-start") : $("btn-stop");
+  btn.disabled = true;
+  ctrlMsg(`${action === "start" ? "Starting" : "Stopping"}…`);
+  try {
+    const r = await fetch("/api/control", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-control-key": CONTROL_KEY },
+      body: JSON.stringify({ action }),
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || ("http " + r.status));
+    ctrlMsg(action === "start"
+      ? "Start sent — bot resumes within ~1 min."
+      : "Stop sent — bot pauses within ~1 min.");
+    setTimeout(refresh, 1500);
+  } catch (e) {
+    ctrlMsg("Failed: " + e.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function bindControls() {
+  $("btn-refresh").addEventListener("click", async () => {
+    const b = $("btn-refresh");
+    b.disabled = true;
+    b.textContent = "↻ Updating…";
+    await refresh();
+    b.textContent = "↻ Refresh";
+    b.disabled = false;
+  });
+  $("btn-start").addEventListener("click", () => sendCommand("start"));
+  $("btn-stop").addEventListener("click", () => sendCommand("stop"));
+}
 
 function ago(iso) {
   const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
@@ -29,8 +74,11 @@ async function refresh() {
 
 function render(d) {
   const pill = $("status-pill");
-  pill.className = "pill live";
-  pill.textContent = `● LIVE · ${d.mode.toUpperCase()} · ${d.strategy.toUpperCase()}`;
+  const live = (d.status || "LIVE") === "LIVE";
+  pill.className = "pill " + (live ? "live" : "unknown");
+  pill.textContent = live
+    ? `● LIVE · ${d.mode.toUpperCase()} · ${d.strategy.toUpperCase()}`
+    : `⏸ PAUSED · ${d.mode.toUpperCase()} · ${d.strategy.toUpperCase()}`;
 
   $("equity").textContent = "$" + d.equity_usd.toLocaleString("en-US",
     { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -64,4 +112,5 @@ function render(d) {
 }
 
 refresh();
+bindControls();
 setInterval(refresh, 30000);
