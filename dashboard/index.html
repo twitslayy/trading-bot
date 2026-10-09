@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Bot Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">🤖 Trading Bot</div>
+  <div id="status-pill" class="pill unknown">CONNECTING…</div>
+</header>
+
+<main>
+  <section class="card hero">
+    <div class="label">Paper equity</div>
+    <div id="equity" class="big">—</div>
+    <div id="pnl" class="sub">—</div>
+    <div id="updated" class="tiny">—</div>
+  </section>
+
+  <section class="card">
+    <h2>Market</h2>
+    <div id="prices" class="prices">—</div>
+  </section>
+
+  <section class="card">
+    <h2>Open positions</h2>
+    <div id="positions">—</div>
+  </section>
+
+  <section class="card">
+    <h2>Recent trades</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Time</th><th>Side</th><th>Pair</th><th>Price</th><th>USD</th></tr></thead>
+      <tbody id="trades"><tr><td colspan="5">—</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Live log</h2>
+    <pre id="log">—</pre>
+  </section>
+
+  <p class="foot">Paper mode · fake money · updates ~every minute · not financial advice</p>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

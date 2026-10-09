@@ -1,0 +1,20 @@
+# systemd user service — keeps the bot running 24/7.
+# Install:  mkdir -p ~/.config/systemd/user
+#           cp trading-bot.service ~/.config/systemd/user/
+#           # edit WorkingDirectory below to the real path first
+#           systemctl --user daemon-reload
+#           systemctl --user enable --now trading-bot.service
+# Logs:     journalctl --user -u trading-bot.service -f
+[Unit]
+Description=Free crypto trading bot (paper mode)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=%h/workspace/trading-bot
+ExecStart=%h/workspace/trading-bot/venv/bin/python bot.py --config config.yaml
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target

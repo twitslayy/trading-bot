@@ -1,0 +1,44 @@
+# ============================================================
+# Free crypto trading bot — configuration
+# mode: paper | testnet | live
+#   paper   : simulated money, free live prices, zero risk (default)
+#   testnet : Binance spot testnet, fake money, real exchange mechanics
+#   live    : REAL money on Binance. Requires BINANCE_API_KEY /
+#             BINANCE_API_SECRET env vars. Start tiny.
+# ============================================================
+mode: paper
+
+# Free public price feed for paper mode (no key needed).
+# kraken -> coinbase -> coingecko automatic fallback.
+price_feed: kraken
+
+# Symbols in "BASE/QUOTE" form. Keep USDT pairs for live mode.
+symbols: ["BTC/USD", "ETH/USD", "SOL/USD"]
+
+strategy: grid            # grid | momentum
+poll_seconds: 20
+paper_start_balance_usd: 1000.0
+fee_pct: 0.1              # per-side fee estimate
+
+risk:
+  max_daily_loss_pct: 3.0 # halt trading for the day past this drawdown
+  max_open_positions: 3
+  per_trade_usd: 25.0     # fixed size per trade (grid level / momentum entry)
+
+grid:
+  symbol: BTC/USD
+  levels: 6               # buy levels below the anchor price
+  spacing_pct: 0.5        # distance between grid lines
+  order_usd: 25.0         # USD spent per filled buy level
+
+momentum:
+  symbols: ["BTC/USD", "ETH/USD", "SOL/USD"]
+  timeframe_minutes: 60
+  ema_fast: 20
+  ema_slow: 50
+  rsi_period: 14
+  rsi_max: 70.0
+  stop_loss_pct: 2.0
+  take_profit_pct: 5.0
+  order_usd: 25.0
+  signal_minutes: 15      # how often to re-check entry signals

@@ -1,0 +1,28 @@
+# TEST ONLY — tight grid so trades trigger within ~1 minute for verification.
+mode: paper
+price_feed: kraken
+symbols: ["BTC/USD"]
+strategy: grid
+poll_seconds: 5
+paper_start_balance_usd: 1000.0
+fee_pct: 0.1
+risk:
+  max_daily_loss_pct: 50.0
+  max_open_positions: 3
+  per_trade_usd: 25.0
+grid:
+  symbol: BTC/USD
+  levels: 6
+  spacing_pct: 0.02
+  order_usd: 25.0
+momentum:
+  symbols: ["BTC/USD"]
+  timeframe_minutes: 60
+  ema_fast: 20
+  ema_slow: 50
+  rsi_period: 14
+  rsi_max: 70.0
+  stop_loss_pct: 2.0
+  take_profit_pct: 5.0
+  order_usd: 25.0
+  signal_minutes: 15
